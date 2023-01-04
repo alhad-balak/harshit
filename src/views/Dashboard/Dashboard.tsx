@@ -4,6 +4,7 @@ import HomeImage from '../../assets/img/background.jpg';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import Page from '../../components/Page';
 import { Grid } from '@material-ui/core';
+import BombFinanceSummary from './Components/BombFinanceSummary';
 
 
 const BackgroundImage = createGlobalStyle`
@@ -20,9 +21,7 @@ export default function Dashboard() {
         <Switch>
             <Page>
                 <BackgroundImage />
-                <Grid>
-                    
-                </Grid>
+                <BombFinanceSummary />
 
             </Page>
         </Switch>
