@@ -5,6 +5,7 @@ import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import Page from '../../components/Page';
 import { Grid } from '@material-ui/core';
 import BombFinanceSummary from './Components/BombFinanceSummary';
+import Bonds from './Components/Bonds';
 
 
 const BackgroundImage = createGlobalStyle`
@@ -17,13 +18,19 @@ const BackgroundImage = createGlobalStyle`
 `;
 
 export default function Dashboard() {
-    return (
-        <Switch>
-            <Page>
-                <BackgroundImage />
-                <BombFinanceSummary />
-
-            </Page>
-        </Switch>
-    );
+  return (
+    <Switch>
+      <Page>
+        <BackgroundImage />
+        <Grid container spacing={3} alignItems="center" style={{ width: "100%" }}>
+          <Grid item spacing={3} style={{ width: "100%" }}>
+            <BombFinanceSummary />
+          </Grid>
+          <Grid item spacing={3} style={{ width: "100%" }}>
+            <Bonds />
+          </Grid>
+        </Grid>
+      </Page>
+    </Switch>
+  );
 };

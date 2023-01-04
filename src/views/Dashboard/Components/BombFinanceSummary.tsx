@@ -1,9 +1,5 @@
 import React from "react";
-
-import { createGlobalStyle } from "styled-components";
-import HomeImage from "../../assets/img/background.jpg";
-import { Route, Switch, useRouteMatch } from "react-router-dom";
-import { Box, Card, CardContent, Button, Typography, Grid } from "@material-ui/core";
+import { Box, Card, CardContent, Typography, Grid } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -22,8 +18,6 @@ const useStyles = makeStyles((theme) => ({
         },
     },
 }));
-
-
 
 const useStylesTable = makeStyles({
     table: {
@@ -112,4 +106,4 @@ export default function BombFinanceSummary() {
             </Box>
         </>
     )
-}
+};

@@ -72,7 +72,7 @@ const Boardroom = () => {
         Boardroom
       </Typography>
       <Box mt={5}>
-        <Grid container justify="center" spacing={3}>
+        <Grid container justifyContent="center" spacing={3}>
           <Grid item xs={12} md={2} lg={2} className={classes.gridItem}>
             <Card className={classes.gridItem}>
               <CardContent style={{ textAlign: 'center' }}>
