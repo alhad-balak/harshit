@@ -8,6 +8,7 @@ import BombFinanceSummary from './Components/BombFinanceSummary';
 import Bonds from './Components/Bonds';
 import LatestNews from './Components/LatestNews';
 import Boardroom from './Components/Boardroom';
+import BombFarms from './Components/BombFarms';
 
 
 const BackgroundImage = createGlobalStyle`
@@ -25,12 +26,9 @@ export default function Dashboard() {
       <Page>
         <BackgroundImage />
         <Grid container spacing={3} alignItems="center" style={{ width: "100%" }}>
-          {/* <Grid item spacing={3} style={{ width: "100%" }}>
+          <Grid item spacing={3} style={{ width: "100%" }}>
             <BombFinanceSummary />
           </Grid>
-          <Grid item spacing={3} style={{ width: "100%" }}>
-            <Bonds />
-          </Grid> */}
           <Grid item spacing={3} style={{ width: "100%" }}>
             <Grid container spacing={3} alignItems="center" style={{ width: "100%" }}>
               <Grid item spacing={3} style={{ width: "65%" }}>
@@ -42,7 +40,10 @@ export default function Dashboard() {
             </Grid>
           </Grid>
           <Grid item spacing={3} style={{ width: "100%" }}>
-
+            <BombFarms />
+          </Grid>
+          <Grid item spacing={3} style={{ width: "100%" }}>
+            <Bonds />
           </Grid>
         </Grid>
       </Page>
