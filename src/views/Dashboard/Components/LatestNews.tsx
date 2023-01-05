@@ -16,7 +16,7 @@ export default function LatestNews() {
     return (
         <>
             <Box>
-                <Card className={classes.gridItem} style={{ minHeight: '200px' }}>
+                <Card className={classes.gridItem} style={{ minHeight: '378px' }}>
                     <CardContent style={{ textAlign: 'center' }}>
                         <Typography style={{ color: '#fff', textAlign: 'left', fontSize: 15 }} variant='h5'>Latest News</Typography>
                     </CardContent>

@@ -37,10 +37,12 @@ export default function Boardroom() {
                         <Box>
                             <Grid container justifyContent="space-between" alignItems="center" spacing={3} style={{ textAlign: 'left' }}>
                                 <Grid item className={classes.gridItem}>
-                                    <Typography style={{ color: '#fff', textAlign: 'left', margin: "auto 0px" }} variant='h5'>BOMB-BTCB  <Button style={{ backgroundColor: "#407d7d", fontSize: 10, color: '#fff', textAlign: 'left', height: "15px" }} disabled>Recommended</Button></Typography>
+                                    <Typography style={{ color: '#fff', textAlign: 'left', margin: "auto 0px" }} variant='h5'>BOARDROOM  <Button style={{ backgroundColor: "#407d7d", fontSize: 10, color: '#fff', textAlign: 'left', height: "15px" }} disabled>Recommended</Button></Typography>
+                                    <Typography style={{ fontSize: 12, color: '#fff', textAlign: 'left' }} variant='subtitle1'>Stake BSHARE and earnBOMB every epoch</Typography>
                                 </Grid>
                                 <Grid item className={classes.gridItem}>
                                     <Typography style={{ fontSize: 15, color: '#fff', textAlign: 'left', margin: "auto 0px" }} variant='subtitle2'>TVL: $1,008, 430</Typography>
+                                    <Typography style={{ fontSize: 15, color: '#fff', textAlign: 'left', margin: "auto 0px" }} variant='subtitle2'>Total Stake: 7232</Typography>
                                 </Grid>
                             </Grid>
                             <hr />
