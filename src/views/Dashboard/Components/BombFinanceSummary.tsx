@@ -1,109 +1,177 @@
-import React from "react";
-import { Box, Card, CardContent, Typography, Grid } from "@material-ui/core";
-import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import React, {useCallback, useMemo} from 'react';
+import Page from '../../components/Page';
+import {createGlobalStyle} from 'styled-components';
+import {Route, Switch, useRouteMatch} from 'react-router-dom';
+import PageHeader from '../../components/PageHeader';
+import ExchangeCard from './components/ExchangeCard';
+import styled from 'styled-components';
+import Spacer from '../../components/Spacer';
+import useBondStats from '../../hooks/useBondStats';
+//import useBombStats from '../../hooks/useBombStats';
+import useBombFinance from '../../hooks/useBombFinance';
+import useCashPriceInLastTWAP from '../../hooks/useCashPriceInLastTWAP';
+import {useTransactionAdder} from '../../state/transactions/hooks';
+import ExchangeStat from './components/ExchangeStat';
+import useTokenBalance from '../../hooks/useTokenBalance';
+import useBondsPurchasable from '../../hooks/useBondsPurchasable';
+import {getDisplayBalance} from '../../utils/formatBalance';
+import { BOND_REDEEM_PRICE, BOND_REDEEM_PRICE_BN } from '../../bomb-finance/constants';
+import { Alert } from '@material-ui/lab';
 
 
-const useStyles = makeStyles((theme) => ({
-    gridItem: {
-        height: '100%',
-        [theme.breakpoints.up('md')]: {
-            height: '90px',
-        },
+import HomeImage from '../../assets/img/background.jpg';
+import { Grid, Box } from '@material-ui/core';
+import { Helmet } from 'react-helmet';
+
+const BackgroundImage = createGlobalStyle`
+  body {
+    background: url(${HomeImage}) repeat !important;
+    background-size: cover !important;
+    background-color: #171923;
+  }
+`;
+const TITLE = 'bomb.money | Bonds'
+
+const Bond: React.FC = () => {
+  const {path} = useRouteMatch();
+  const bombFinance = useBombFinance();
+  const addTransaction = useTransactionAdder();
+  const bondStat = useBondStats();
+  
+  //const bombStat = useBombStats();
+  const cashPrice = useCashPriceInLastTWAP();
+
+  const bondsPurchasable = useBondsPurchasable();
+
+  const bondBalance = useTokenBalance(bombFinance?.BBOND);
+  //const scalingFactor = useMemo(() => (cashPrice ? Number(cashPrice) : null), [cashPrice]);
+
+  const handleBuyBonds = useCallback(
+    async (amount: string) => {
+      const tx = await bombFinance.buyBonds(amount);
+      addTransaction(tx, {
+        summary: `Buy ${Number(amount).toFixed(2)} BBOND with ${amount} BOMB`,
+      });
     },
-}));
+    [bombFinance, addTransaction],
+  );
 
-const useStylesTable = makeStyles({
-    table: {
-        minWidth: 550
+  const handleRedeemBonds = useCallback(
+    async (amount: string) => {
+      const tx = await bombFinance.redeemBonds(amount);
+      addTransaction(tx, {summary: `Redeem ${amount} BBOND`});
     },
-});
+    [bombFinance, addTransaction],
+  );
+  const isBondRedeemable = useMemo(() => cashPrice.gt(BOND_REDEEM_PRICE_BN), [cashPrice]);
+  const isBondPurchasable = useMemo(() => Number(bondStat?.tokenInFtm) < 1.01, [bondStat]);
+  const isBondPayingPremium = useMemo(() => Number(bondStat?.tokenInFtm) >= 1.1, [bondStat]);
+// console.log("bondstat", Number(bondStat?.tokenInFtm))
+  const bondScale = (Number(cashPrice) / 100000000000000).toFixed(4); 
 
-function createData(name: string, CurrentSupply: string, TotalSupply: string, Price: string, icon: string) {
-    return { name, CurrentSupply, TotalSupply, Price, icon };
-}
+  return (
+    <Switch>
+      <Page>
+        <BackgroundImage />
+              <Helmet>
+        <title>{TITLE}</title>
+      </Helmet>
+            <Route exact path={path}>
+              <PageHeader icon={'💣'} title="Buy &amp; Redeem Bonds" subtitle="Earn premiums upon redemption" />
+            </Route>
+            {isBondPayingPremium === false ? (
 
-const rows = [
-    createData('$BOMB', "8.66M", "60.9K", "$0.24 105 BTCB", "Icon"),
-    createData('$BSHARE', "11.34K", "8.49M", "$300 13000 BTCB", "Icon"),
-    createData('$BBOND', "20.00K", "175K", "$0.28 1.15 BTCB", "Icon")
-];
 
-function SupplyTable() {
-    const classes = useStylesTable();
+              <Box mt={5}>
+                <Grid item xs={12} sm={12} justify="center" style={{ margin: '18px', display: 'flex' }}>
+                <Alert variant="filled" severity="error">
+                    <b>
+                      Claiming below 1.1 peg will not receive a redemption bonus, claim wisely!</b>
+              </Alert>
+            
+              </Grid>
+              </Box>
+            ) : <></>}
+          
+            <StyledBond>
+              <StyledCardWrapper>
+                <ExchangeCard
+                  action="Purchase"
+                  fromToken={bombFinance.BOMB}
+                  fromTokenName="BOMB"
+                  toToken={bombFinance.BBOND}
+                  toTokenName="BBOND"
+                  priceDesc={
+                    !isBondPurchasable
+                      ? 'BOMB is over peg'
+                      : getDisplayBalance(bondsPurchasable, 18, 4) + ' BBOND available for purchase'
+                  }
+                  onExchange={handleBuyBonds}
+                  disabled={!bondStat || isBondRedeemable}
+                />
+              </StyledCardWrapper>
+              <StyledStatsWrapper>
+                <ExchangeStat
+                  tokenName="10,000 BOMB"
+                  description="Last-Hour TWAP Price"
+                  //price={Number(bombStat?.tokenInFtm).toFixed(4) || '-'}
+                 price={bondScale || '-'}
 
-    return (
-        <TableContainer component={Paper}>
-            <Table className={classes.table} aria-label="simple table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell></TableCell>
-                        <TableCell align="center">Current Supply</TableCell>
-                        <TableCell align="center">Total Supply</TableCell>
-                        <TableCell align="center">Price</TableCell>
-                        <TableCell align="center"></TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {rows.map((row) => (
-                        <TableRow key={row.name}>
-                            <TableCell component="th" scope="row">
-                                {row.name}
-                            </TableCell>
-                            <TableCell align="center">{row.CurrentSupply}</TableCell>
-                            <TableCell align="center">{row.TotalSupply}</TableCell>
-                            <TableCell align="center">{row.Price}</TableCell>
-                            <TableCell align="center">{row.icon}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-    );
-}
-
-export default function BombFinanceSummary() {
-    const classes = useStyles();
-
-    return (
-        <>
-            <Box>
-                <Card className={classes.gridItem} style={{ height: 'auto' }}>
-                    <CardContent style={{ textAlign: 'center' }}>
-                        <Typography style={{ textTransform: 'uppercase', color: '#fff' }} variant='h5'>Bomb Finance Summary</Typography>
-                        <hr />
-                        <Grid container spacing={3} justifyContent="space-between" style={{ padding: "54px" }}>
-                            <Grid item className={classes.gridItem}>
-                                <SupplyTable />
-                            </Grid>
-                            <Grid item>
-
-                                <Typography style={{ textTransform: 'uppercase', color: '#fff' }} variant='subtitle1'>Current Epoch</Typography>
-
-                                <Typography style={{ textTransform: 'uppercase', color: '#fff', fontSize: '45' }} >258</Typography>
-
-                                <hr />
-
-                                <Typography style={{ textTransform: 'uppercase', color: '#fff', fontSize: '45' }} >03:38:36</Typography>
-                                <Typography style={{ textTransform: 'uppercase', color: '#fff' }} variant='subtitle1'>Next Epoch in</Typography>
-
-                                <hr />
-
-                                <Typography style={{ textTransform: 'uppercase', color: '#fff' }} variant='subtitle1'>Live TWAP: 1.17</Typography>
-                                <Typography style={{ textTransform: 'uppercase', color: '#fff', fontSize: '45' }} >RVL: $5,002,412</Typography>
-                                <Typography style={{ textTransform: 'uppercase', color: '#fff' }} variant='subtitle1'>Last Epoch TWAP: 1.22</Typography>
-                            </Grid>
-                        </Grid>
-
-                    </CardContent>
-                </Card>
-            </Box>
-        </>
-    )
+                />
+                <Spacer size="md" />
+                <ExchangeStat
+                  tokenName="10,000 BBOND"
+                  description="Current Price: (BOMB)^2"
+                  price={Number(bondStat?.tokenInFtm).toFixed(4) || '-'}
+                />
+              </StyledStatsWrapper>
+              <StyledCardWrapper>
+                <ExchangeCard
+                  action="Redeem"
+                  fromToken={bombFinance.BBOND}
+                  fromTokenName="BBOND"
+                  toToken={bombFinance.BOMB}
+                  toTokenName="BOMB"
+                  priceDesc={`${getDisplayBalance(bondBalance)} BBOND Available in wallet`}
+                  onExchange={handleRedeemBonds}
+                  disabled={!bondStat || bondBalance.eq(0) || !isBondRedeemable}
+                  disabledDescription={!isBondRedeemable ? `Enabled when 10,000 BOMB > ${BOND_REDEEM_PRICE}BTC` : null}
+                />
+              </StyledCardWrapper>
+            </StyledBond>
+      </Page>
+    </Switch>
+  );
 };
+
+const StyledBond = styled.div`
+  display: flex;
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-flow: column nowrap;
+    align-items: center;
+  }
+`;
+
+const StyledCardWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  @media (max-width: 768px) {
+    width: 80%;
+  }
+`;
+
+const StyledStatsWrapper = styled.div`
+  display: flex;
+  flex: 0.8;
+  margin: 0 20px;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    width: 80%;
+    margin: 16px 0;
+  }
+`;
+
+export default Bond;
